@@ -1,14 +1,12 @@
-# weixin-pay
-微信支付 for node.js
-
-[![npm version](https://badge.fury.io/js/weixin-pay.svg)](http://badge.fury.io/js/weixin-pay)
-
-## Installation
-```
-npm install weixin-pay
-```
+# co-weixin-pay
+[weixin-pay](https://github.com/lext-7/weixin-pay) with co
 
 ## Usage
+
+install from npm
+```
+npm install co-weixin-pay
+```
 
 创建统一支付订单
 ```js
@@ -21,7 +19,7 @@ var wxpay = WXPay({
 	pfx: fs.readFileSync('./wxpay_cert.p12'), //微信商户平台证书
 });
 
-wxpay.createUnifiedOrder({
+var result =  yield wxpay.createUnifiedOrder({
 	body: '扫码支付测试',
 	out_trade_no: '20140703'+Math.random().toString().substr(2, 10),
 	total_fee: 1,
@@ -29,29 +27,21 @@ wxpay.createUnifiedOrder({
 	notify_url: 'http://wxpay_notify_url',
 	trade_type: 'NATIVE',
 	product_id: '1234567890'
-}, function(err, result){
-	console.log(result);
 });
 ```
 
 查询订单
 ```js
 // 通过微信订单号查
-wxpay.queryOrder({ transaction_id:"xxxxxx" }, function(err, order){
-	console.log(order);
-});
+var result =  yield wxpay.queryOrder({ transaction_id:"xxxxxx" });
 
 // 通过商户订单号查
-wxpay.queryOrder({ out_trade_no:"xxxxxx" }, function(err, order){
-	console.log(order);
-});
+var result =  yield wxpay.queryOrder({ out_trade_no:"xxxxxx" });
 ```
 
 关闭订单
 ```js
-wxpay.closeOrder({ out_trade_no:"xxxxxx"}, function(err, result){
-	console.log(result);
-});
+var result =  yield wxpay.closeOrder({ out_trade_no:"xxxxxx"});
 ```
 退款接口
 ```js
@@ -65,9 +55,7 @@ var params = {
     transaction_id: '微信订单号'
 };
 
-wxpay.refund(params, function(err, result){
-    console.log('refund', arguments);
-});
+var result = yield  wxpay.refund(params);
 ```
 
 ### 原生支付 (NATIVE)
@@ -94,7 +82,7 @@ var url = wxpay.createMerchantPrepayUrl({ product_id: '123456' });
 
 生成JS API支付参数，发给页面
 ```js
-wxpay.getBrandWCPayRequestParams({
+var result = yield  wxpay.getBrandWCPayRequestParams({
 	openid: '微信用户 openid',
 	body: '公众号支付测试',
     detail: '公众号支付测试',
@@ -102,9 +90,6 @@ wxpay.getBrandWCPayRequestParams({
 	total_fee: 1,
 	spbill_create_ip: '192.168.2.210',
 	notify_url: 'http://wxpay_notify_url'
-}, function(err, result){
-	// in express
-    res.render('wxpay/jsapi', { payargs:result })
 });
 ```
 
@@ -120,34 +105,33 @@ WeixinJSBridge.invoke(
 
 ### 中间件
 
-商户服务端处理微信的回调（express为例）
+商户服务端处理微信的回调（koa为例）
 ```js
-// 原生支付回调
-router.use('/wxpay/native/callback', wxpay.useWXCallback(function(msg, req, res, next){
-	// msg: 微信回调发送的数据
-}));
 
-// 支付结果异步通知
-router.use('/wxpay/notify', wxpay.useWXCallback(function(msg, req, res, next){
-	// 处理商户业务逻辑
+app.use(function *() {
+	var result = yield wxpay.parseCallbacl(this);
 
-    // res.success() 向微信返回处理成功信息，res.fail()返回失败信息。
-    res.success();
-}));
+	// handle with callback data
+	result.data;
+	// ...
+
+	// return success
+	this.body = result.success;
+	// return fail
+	this.body = result.fail;
+});
 ```
 
 
 ### 企业支付
 
 ```js
-wxpay.transfer({
+var result = yield wxpay.transfer({
 	partner_trade_no: '3123123123', // 订单号
 	openid: 'openid',
 	amount: 100, // 分为单位
 	desc: '描述',
 	spbill_create_ip: '192.168.2.210', // ip,
 	check_name: 'NO_CHECK', //默认为 NO_CHECK, 可不填
-}, function(err, result){
-	console.log('transfer', arguments);
 });
 ```
