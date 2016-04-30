@@ -1,0 +1,33 @@
+{
+  "name": "co-weixin-pay",
+  "version": "1.0.0",
+  "description": "weixin payment with co",
+  "main": "index.js",
+  "dependencies": {
+    "MD5": "^1.2.1",
+    "co-xml2js": "^1.0.0",
+    "co-request": "^1.0.0"
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lext-7/co-weixin-pay.git"
+  },
+  "keywords": [
+    "weixin",
+    "wechat",
+    "payment",
+    "co"
+  ],
+  "author": {
+    "name": "lext",
+    "email": "lext.nobody@outlook.com",
+    "url": "http://lext-7.github.io/me/"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/lext-7/co-node-xml2js/issues",
+    "email": "lext.nobody@outlook.com"
+  },
+  "homepage": "https://github.com/lext-7/co-weixin-pay"
+}
